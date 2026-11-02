@@ -1,1 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAF February 2027 Dashboard</title>
+<style>
+:root{color-scheme:dark}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#101e31;color:#f4f7fb;font:16px system-ui,sans-serif}.panel{max-width:620px;margin:24px;padding:32px;border:1px solid #344b65;border-radius:18px;background:#172a40;box-shadow:0 18px 50px #0005}h2{margin-top:0}p{line-height:1.6;color:#d0dbea}#msg{color:#8fd5ff}
+</style>
+</head>
+<body>
+<div class="panel">
+<h2>CAF February 2027 Dashboard</h2>
+<p id="msg">Loading your study dashboard…</p>
+<p><small>Internet is needed to load the latest version. Your study progress is saved in this browser.</small></p>
+</div>
+<script>
+(async()=>{
+ const msg=document.getElementById('msg');
+ try{
+  const base='https://raw.githubusercontent.com/danishshahzad45-collab/CAF-FEB-2027-Dashboard/main/payload/';
+  const parts=await Promise.all(Array.from({length:9},(_,i)=>
+   fetch(base+'part-'+i+'.txt?refresh='+Date.now(),{cache:'no-store'})
+    .then(r=>{if(!r.ok)throw new Error('Could not load dashboard data (part '+(i+1)+')');return r.text()})
+  ));
+  const encoded=parts.join('').replace(/\s/g,'');
+  const binary=atob(encoded);
+  const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+  if(!('DecompressionStream' in window))throw new Error('This browser does not support the dashboard loader. Please use latest Chrome or Edge.');
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const html=await new Response(stream).text();
+  if(!html.includes('<!DOCTYPE html>')||!html.includes('CAF | February 2027 Command Centre'))throw new Error('Dashboard integrity check failed.');
+  document.open();document.write(html);document.close();
+ }catch(err){msg.textContent='Dashboard did not load: '+err.message+'. Refresh the page or open in the latest Chrome/Edge.';}
+})();
+</script>
+</body>
+</html>
