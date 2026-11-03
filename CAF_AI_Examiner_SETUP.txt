@@ -1,0 +1,31 @@
+CAF AI EXAMINER — ONE-TIME BACKEND SETUP
+========================================
+
+IMPORTANT
+- The dashboard is static HTML. It cannot safely contain an OpenAI API key.
+- This Cloudflare Worker keeps the OpenAI key server-side.
+- OpenAI API billing is separate from your ChatGPT subscription.
+- Marks returned without an official scheme are estimates, not official ICAP marks.
+
+SETUP
+1. Sign in to Cloudflare and open Workers & Pages.
+2. Create a new Worker, e.g. caf-ai-marker.
+3. Open Edit code, replace the sample with caf-ai-worker.js, then Deploy.
+4. In Worker Settings > Variables and Secrets, add these as Secrets:
+     OPENAI_API_KEY       Your OpenAI API key
+     APP_ACCESS_TOKEN     A long random private token you create
+5. Add these as plain-text Variables:
+     OPENAI_MODEL         gpt-5.6
+     ALLOWED_ORIGINS      https://raw.githack.com
+6. Save / deploy. Copy the Worker URL (https://....workers.dev).
+7. Open dashboard > AI Examiner. Paste the Worker URL and the same APP_ACCESS_TOKEN.
+8. Click Save connection, then Test connection. When it reports connected, use Check my answer on a practice question.
+
+SECURITY
+- Never paste OPENAI_API_KEY into the dashboard or commit it to GitHub.
+- Keep APP_ACCESS_TOKEN private; anyone who gets it could consume your API budget.
+- If you serve the dashboard from another website origin, update ALLOWED_ORIGINS to that exact origin. Use comma-separated origins if needed. Do not use * for a private marking service.
+- Marking requires internet. Chapter progress remains local to the browser.
+- Up to five JPG/PNG/WebP register photos and one PDF marking plan can be attached per attempt.
+- The Worker sends requests to the OpenAI Responses API with store:false. Images and PDFs are still transmitted to the API for processing; do not upload confidential or third-party personal data.
+- Default model is gpt-5.6; change OPENAI_MODEL only to a vision-capable model enabled for your API account.
